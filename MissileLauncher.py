@@ -5,7 +5,7 @@ class MissileLauncher:
 	parentBody = None
 	
 	def launchMissle(self):
-		missile = new BodyOfMass()
+		missile = BodyOfMass()
 		missile.mass = 1
 		missile.missileLauncher = self
 		missile.position = self.parentBody.position
