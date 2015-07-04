@@ -22,22 +22,15 @@ class BodyOfMass:
                 continue
             force_x += self.calculateAccelerationComponent(body, 'x')
             force_y += self.calculateAccelerationComponent(body, 'y')
-        if self.mass != 0:
-            acceleration_x = force_x / self.mass
-            acceleration_y = force_y / self.mass
+        acceleration_x = force_x / self.mass
+        acceleration_y = force_y / self.mass
         return {'x': acceleration_x, 'y': acceleration_y}
 
     # helpfunction for caclulateAcceleration for one component, returns a force
     def calculateAccelerationComponent(self, body, component):
-        if body.position.get(component) != 0:
-            e = body.position.get(component) / abs(body.position.get(component)) # unit vector
-        else:
-            e = 0
+        e = body.position.get(component) / abs(body.position.get(component)) # unit vector
         distance = (body.position.get(component) - self.position.get(component))**2
-        if distance != 0:
-            force = self.mass * body.mass / distance # distance is already squared)
-        else:
-            force = 0
+        force = self.mass * body.mass / distance # distance is already squared)
         return e * force
 
     # returns a dictionary with x and y values
