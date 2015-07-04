@@ -28,8 +28,21 @@ class BodyOfMass:
 
     # helpfunction for caclulateAcceleration for one component, returns a force
     def calculateAccelerationComponent(self, body, component):
-        e = body.position.get(component) / abs(body.position.get(component)) # unit vector
-        distance = (body.position.get(component) - self.position.get(component))**2
+        distance_x = body.position['x'] - self.position['x']
+        distance_y = body.position['y'] - self.position['y']
+        distance = distance_x**2 + distance_y**2
+        if distance == 0:
+            return 0
+        if component == 'x':
+            if distance_x < 0:
+                e = -1
+            else:
+                e = 1
+        else:
+            if distance_y < 0:
+                e = -1
+            else:
+                e = 1
         force = self.mass * body.mass / distance # distance is already squared)
         return e * force
 
