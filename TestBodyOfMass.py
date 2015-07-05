@@ -82,7 +82,6 @@ for text in sys.argv:
 #Main loop
 while play:
     #Clear screen
-    os.system('cls' if os.name == 'nt' else 'clear')
     screen.fill((0,0,0))
 
     #Update time
@@ -148,6 +147,7 @@ while play:
 
         #Printing information
     if draw_planet_info:
+        os.system('cls' if os.name == 'nt' else 'clear')
         print("-------------------------------------------------")
         print("Planet p1 has position     x = ", p1.position['x'])
         print("Planet p1 has position     y = ", p1.position['y'])
