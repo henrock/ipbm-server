@@ -19,6 +19,12 @@ p6 = BodyOfMass.BodyOfMass()
 
 list_of_planets = [p1, p2, p3, p4, p5, p6]
 
+# Creating a missile launcher
+ipbm_launcher = MissileLauncher.MissileLauncher()
+ipbm_launcher.parentBody = p1
+
+list_of_missiles = [None]
+
 #Assign a starting coordinates
 p1.position['x'] = 400
 p1.position['y'] = 200
@@ -140,8 +146,12 @@ while play:
 
     #Check for events
     for event in pygame.event.get():
-	    if event.type == pygame.QUIT:
-	      play = False
+        if event.type == pygame.QUIT:
+            play = False
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE:
+                list_of_planets.append(ipbm_launcher.launchMissile())
+
     #Check for keys
     key = pygame.key.get_pressed()
     if key[pygame.K_ESCAPE]:
