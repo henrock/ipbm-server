@@ -83,6 +83,8 @@ while play:
     elapsed_time = current_time - start_time
     #print "Time difference is", delta_time
     print("Elapsed time is ", elapsed_time)
+    frame_rate = 1 / delta_time
+    print("Frame rate is rolling steady at",(int(frame_rate)),"space frames per second")
     #print "Iterations is ", play
 
     for planet in list_of_planets:
