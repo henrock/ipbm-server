@@ -19,12 +19,6 @@ p6 = BodyOfMass.BodyOfMass()
 
 list_of_planets = [p1, p2, p3, p4, p5, p6]
 
-# Creating a missile launcher
-ipbm_launcher = MissileLauncher.MissileLauncher()
-ipbm_launcher.parentBody = p1
-
-list_of_missiles = [None]
-
 #Assign a starting coordinates
 p1.position['x'] = 400
 p1.position['y'] = 200
@@ -49,7 +43,7 @@ p5.mass = 4000
 p6.mass = 5000
 
 
-#Assign raidus
+#Assign radius
 p1.radius = 10
 p2.radius = 15
 p3.radius = 20
@@ -133,6 +127,8 @@ while play:
                         planet2_area = math.pi * (planet2.radius**2)
                         planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
                         list_of_planets.remove(planet2)
+                        list_of_planets.remove(planet)
+                        continue
 
     #Draw planets
     for planet in list_of_planets:
@@ -149,8 +145,17 @@ while play:
         if event.type == pygame.QUIT:
             play = False
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                list_of_planets.append(ipbm_launcher.launchMissile())
+            if event.key == pygame.K_SPACE and p6 in list_of_planets:
+                ipbm = BodyOfMass.BodyOfMass()
+                ipbm.position['x'] = p6.position['x'] + p6.radius
+                ipbm.position['y'] = p6.position['y'] - p6.radius
+                ipbm.velocity['x'] = p6.velocity['x'] + p6.mass/200
+                ipbm.velocity['y'] = p6.velocity['y'] - p6.mass/200
+                ipbm.mass = 10
+                p6.mass -= 10
+                ipbm.radius = 1
+                p6.radius -= 1
+                list_of_planets.append(ipbm)
 
     #Check for keys
     key = pygame.key.get_pressed()
