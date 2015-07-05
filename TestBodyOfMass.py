@@ -7,6 +7,7 @@ import pygame
 import time
 import os
 import sys
+import math
 
 #Creating a few planets
 p1 = BodyOfMass.BodyOfMass()
@@ -120,12 +121,13 @@ while play:
                     continue
                 distance = (planet.position['x'] - planet2.position['x'])**2 + (planet.position['y'] - planet2.position['y'])**2
                 if distance < (planet.radius + planet2.radius)**2:
+                    #Combine them
                     if planet.mass > planet2.mass:
                         planet.mass += planet2.mass
-                        planet.radius += planet2.radius
+                        planet_area = math.pi * (planet.radius**2)
+                        planet2_area = math.pi * (planet2.radius**2)
+                        planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
                         list_of_planets.remove(planet2)
-                    #We have a collision, do not update position
-                    #planet.moving = False
 
     #Draw planets
     for planet in list_of_planets:
