@@ -76,10 +76,6 @@ while play:
     print("Planet p3 has acceleration y = ", p3.acceleration['y'])
     print("")
 
-    #Calculate accelerations
-    for planet in list_of_planets:
-        planet.acceleration = planet.calculateAcceleration(list_of_planets)
-
     #Update time
     current_time = time.time()
     delta_time = current_time - last_time
@@ -89,18 +85,29 @@ while play:
     print("Elapsed time is ", elapsed_time)
     #print "Iterations is ", play
 
-    #Calculate velocity
     for planet in list_of_planets:
-        planet.velocity['x'] += planet.acceleration['x']*delta_time
-        planet.velocity['y'] += planet.acceleration['y']*delta_time
+        #Collision management
+        if planet.moving == True:
+            #Calculate position
+            planet.position['x'] += planet.velocity['x']*delta_time
+            planet.position['y'] += planet.velocity['y']*delta_time
 
-    #Calculate position
-    for planet in list_of_planets:
-        planet.position['x'] += planet.velocity['x']*delta_time
-        planet.position['y'] += planet.velocity['y']*delta_time
+            #Calculate accelerations
+            planet.acceleration = planet.calculateAcceleration(list_of_planets)
 
+            #Calculate velocity
+            planet.velocity['x'] += planet.acceleration['x']*delta_time
+            planet.velocity['y'] += planet.acceleration['y']*delta_time
 
-    print("-------------------------------------------------")
+            #Check for collisions
+            for planet2 in list_of_planets:
+                if planet == planet2:
+                    continue
+                distance = (planet.position['x'] - planet2.position['x'])**2 + (planet.position['y'] - planet2.position['y'])**2
+                if distance < (planet.radius + planet2.radius)**2:
+                    #We have a collision, do not update position
+                    print("Collision detected!")
+                    planet.moving = False
 
     #Draw planets
     for planet in list_of_planets:
@@ -117,6 +124,9 @@ while play:
     key = pygame.key.get_pressed()
     if key[pygame.K_ESCAPE]:
         play = False
+
+    print("-------------------------------------------------")
+
 
 
 #Finally close the window
