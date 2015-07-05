@@ -10,6 +10,7 @@ class BodyOfMass:
         self.radius = 0.0
         self.name = ''
         self.isControlled = False
+        self.moving = True
 
 
     # returns a dictionary with x and y values
