@@ -11,7 +11,11 @@ import os
 p1 = BodyOfMass.BodyOfMass()
 p2 = BodyOfMass.BodyOfMass()
 p3 = BodyOfMass.BodyOfMass()
-list_of_planets = [p1, p2, p3]
+p4 = BodyOfMass.BodyOfMass()
+p5 = BodyOfMass.BodyOfMass()
+p6 = BodyOfMass.BodyOfMass()
+
+list_of_planets = [p1, p2, p3, p4, p5, p6]
 
 #Assign a starting coordinates
 p1.position['x'] = 400
@@ -20,16 +24,30 @@ p2.position['x'] = 300
 p2.position['y'] = 300
 p3.position['x'] = 200
 p3.position['y'] = 200
+p4.position['x'] = 100
+p4.position['y'] = 100
+p5.position['x'] = 600
+p5.position['y'] = 200
+p6.position['x'] = 150
+p6.position['y'] = 360
+
 
 #Assign mass
 p1.mass = 100
 p2.mass = 150
 p3.mass = 200
+p4.mass = 300
+p5.mass = 400
+p6.mass = 500
+
 
 #Assign raidus
 p1.radius = 10
 p2.radius = 15
 p3.radius = 20
+p4.radius = 30
+p5.radius = 40
+p6.radius = 50
 
 #Control variable
 play = True
@@ -87,19 +105,19 @@ while play:
     elapsed_time = current_time - start_time
     #print "Time difference is", delta_time
     print("Elapsed time is ", elapsed_time)
-    
+
     #Upate frame rate
     frame_count += 1;
     frame_sum += delta_time
-    
+
     if frame_count == 10:
         frame_rate = 1 / (frame_sum / 10)
         frame_sum = 0
         frame_count = 0
-    
+
     print("Frame rate is rolling steady at",(int(frame_rate)),"space frames per second")
-    
-    
+
+
     #print "Iterations is ", play
 
     for planet in list_of_planets:
