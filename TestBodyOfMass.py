@@ -34,12 +34,12 @@ p6.position['y'] = 360
 
 
 #Assign mass
-p1.mass = 100
-p2.mass = 150
-p3.mass = 200
-p4.mass = 300
-p5.mass = 400
-p6.mass = 500
+p1.mass = 1000
+p2.mass = 1500
+p3.mass = 2000
+p4.mass = 3000
+p5.mass = 4000
+p6.mass = 5000
 
 
 #Assign raidus
@@ -120,8 +120,12 @@ while play:
                     continue
                 distance = (planet.position['x'] - planet2.position['x'])**2 + (planet.position['y'] - planet2.position['y'])**2
                 if distance < (planet.radius + planet2.radius)**2:
+                    if planet.mass > planet2.mass:
+                        planet.mass += planet2.mass
+                        planet.radius += planet2.radius
+                        list_of_planets.remove(planet2)
                     #We have a collision, do not update position
-                    planet.moving = False
+                    #planet.moving = False
 
     #Draw planets
     for planet in list_of_planets:
