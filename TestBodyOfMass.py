@@ -68,6 +68,10 @@ screen = pygame.display.set_mode((win_x,win_y))
 pygame.display.set_caption('Test')
 pygame.display.flip()
 
+#Create font for displaying text
+pygame.font.init()
+Font = pygame.font.Font(None, 28)
+
 #Main loop
 while play:
     #Clear screen
@@ -75,28 +79,28 @@ while play:
     screen.fill((0,0,0))
 
     #Printing information
-    print("-------------------------------------------------")
-    print("Planet p1 has position     x = ", p1.position['x'])
-    print("Planet p1 has position     y = ", p1.position['y'])
-    print("Planet p1 has velocity     x = ", p1.velocity['x'])
-    print("Planet p1 has velocity     y = ", p1.velocity['y'])
-    print("Planet p1 has acceleration x = ", p1.acceleration['x'])
-    print("Planet p1 has acceleration y = ", p1.acceleration['y'])
-    print("")
-    print("Planet p2 has position     x = ", p2.position['x'])
-    print("Planet p2 has position     y = ", p2.position['y'])
-    print("Planet p2 has velocity     x = ", p2.velocity['x'])
-    print("Planet p2 has velocity     y = ", p2.velocity['y'])
-    print("Planet p2 has acceleration x = ", p2.acceleration['x'])
-    print("Planet p2 has acceleration y = ", p2.acceleration['y'])
-    print("")
-    print("Planet p3 has position     x = ", p3.position['x'])
-    print("Planet p3 has position     y = ", p3.position['y'])
-    print("Planet p3 has velocity     x = ", p3.velocity['x'])
-    print("Planet p3 has velocity     y = ", p3.velocity['y'])
-    print("Planet p3 has acceleration x = ", p3.acceleration['x'])
-    print("Planet p3 has acceleration y = ", p3.acceleration['y'])
-    print("")
+    #print("-------------------------------------------------")
+    #print("Planet p1 has position     x = ", p1.position['x'])
+    #print("Planet p1 has position     y = ", p1.position['y'])
+    #print("Planet p1 has velocity     x = ", p1.velocity['x'])
+    #print("Planet p1 has velocity     y = ", p1.velocity['y'])
+    #print("Planet p1 has acceleration x = ", p1.acceleration['x'])
+    #print("Planet p1 has acceleration y = ", p1.acceleration['y'])
+    #print("")
+    #print("Planet p2 has position     x = ", p2.position['x'])
+    #print("Planet p2 has position     y = ", p2.position['y'])
+    #print("Planet p2 has velocity     x = ", p2.velocity['x'])
+    #print("Planet p2 has velocity     y = ", p2.velocity['y'])
+    #print("Planet p2 has acceleration x = ", p2.acceleration['x'])
+    #print("Planet p2 has acceleration y = ", p2.acceleration['y'])
+    #print("")
+    #print("Planet p3 has position     x = ", p3.position['x'])
+    #print("Planet p3 has position     y = ", p3.position['y'])
+    #print("Planet p3 has velocity     x = ", p3.velocity['x'])
+    #print("Planet p3 has velocity     y = ", p3.velocity['y'])
+    #print("Planet p3 has acceleration x = ", p3.acceleration['x'])
+    #print("Planet p3 has acceleration y = ", p3.acceleration['y'])
+    #print("")
 
     #Update time
     current_time = time.time()
@@ -104,7 +108,7 @@ while play:
     last_time = current_time
     elapsed_time = current_time - start_time
     #print "Time difference is", delta_time
-    print("Elapsed time is ", elapsed_time)
+    #print("Elapsed time is ", elapsed_time)
 
     #Upate frame rate
     frame_count += 1;
@@ -115,10 +119,8 @@ while play:
         frame_sum = 0
         frame_count = 0
 
-    print("Frame rate is rolling steady at",(int(frame_rate)),"space frames per second")
-
-
-    #print "Iterations is ", play
+    #print("Frame rate is rolling steady at",(int(frame_rate)),"space frames per second")
+    Text = Font.render("FPS: " + str(int(frame_rate)), True, (255,255,255))
 
     for planet in list_of_planets:
         #Collision management
@@ -141,12 +143,15 @@ while play:
                 distance = (planet.position['x'] - planet2.position['x'])**2 + (planet.position['y'] - planet2.position['y'])**2
                 if distance < (planet.radius + planet2.radius)**2:
                     #We have a collision, do not update position
-                    print("Collision detected!")
+                    #print("Collision detected!")
                     planet.moving = False
 
     #Draw planets
     for planet in list_of_planets:
         pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
+
+    #Draw FPS
+    screen.blit(Text, (10,10))
 
     #Update screen
     pygame.display.flip()
@@ -160,7 +165,7 @@ while play:
     if key[pygame.K_ESCAPE]:
         play = False
 
-    print("-------------------------------------------------")
+    #print("-------------------------------------------------")
 
 
 
