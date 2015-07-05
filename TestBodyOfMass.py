@@ -95,7 +95,7 @@ while play:
     frame_count += 1;
     frame_sum += delta_time
     if frame_sum > 1:
-        frame_rate = 1 / (frame_sum / frame_count)
+        frame_rate = flot(frame_count) / frame_sum
         frame_sum = 0
         frame_count = 0
     Text = Font.render("FPS: " + str(int(frame_rate)), True, (255,255,255))
