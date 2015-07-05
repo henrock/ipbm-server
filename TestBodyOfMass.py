@@ -39,6 +39,10 @@ start_time = time.time()
 last_time = time.time()
 current_time = time.time()
 elapsed_time = 0
+#Frame counting variables
+frame_count = 0
+frame_sum = 0
+frame_rate = 0
 
 #Create window and display it
 (win_x, win_y) = (640, 480)
@@ -83,8 +87,19 @@ while play:
     elapsed_time = current_time - start_time
     #print "Time difference is", delta_time
     print("Elapsed time is ", elapsed_time)
-    frame_rate = 1 / delta_time
+    
+    #Upate frame rate
+    frame_count += 1;
+    frame_sum += delta_time
+    
+    if frame_count == 10:
+        frame_rate = 1 / (frame_sum / 10)
+        frame_sum = 0
+        frame_count = 0
+    
     print("Frame rate is rolling steady at",(int(frame_rate)),"space frames per second")
+    
+    
     #print "Iterations is ", play
 
     for planet in list_of_planets:
