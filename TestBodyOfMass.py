@@ -9,6 +9,16 @@ import os
 import sys
 import math
 
+def get_next_collision_type(current_collision_type):
+    collision_types = ('remove','merge','explode')
+    current_index = collision_types.index(current_collision_type)
+    if len(collision_types) > current_index + 1:
+        #Return the next item
+        return collision_types[current_index + 1]
+    else:
+        #Return the first one
+        return collision_types[0]
+
 #Creating a few planets
 p1 = BodyOfMass.BodyOfMass()
 p2 = BodyOfMass.BodyOfMass()
@@ -74,6 +84,9 @@ pygame.display.flip()
 pygame.font.init()
 Font = pygame.font.Font(None, 28)
 
+#Set default collision type
+collision_type = 'remove'
+
 #Check command line arguments
 draw_planet_info = False
 for text in sys.argv:
@@ -95,10 +108,13 @@ while play:
     frame_count += 1;
     frame_sum += delta_time
     if frame_sum > 1:
-        frame_rate = float(frame_count) / frame_sum
+        frame_rate = frame_count / frame_sum
         frame_sum = 0
         frame_count = 0
-    Text = Font.render("FPS: " + str(int(frame_rate)), True, (255,255,255))
+    fps_text = Font.render("FPS: " + str(int(frame_rate)), True, (255,255,255))
+
+    #Update collision type text
+    collision_text = Font.render("[F1] Collision type: " + collision_type, True, (255,255,255))
 
     for planet in list_of_planets:
         #Collision management
@@ -120,22 +136,28 @@ while play:
                     continue
                 distance = (planet.position['x'] - planet2.position['x'])**2 + (planet.position['y'] - planet2.position['y'])**2
                 if distance < (planet.radius + planet2.radius)**2:
-                    #Combine them
-                    if planet.mass > planet2.mass:
-                        planet.mass += planet2.mass
-                        planet_area = math.pi * (planet.radius**2)
-                        planet2_area = math.pi * (planet2.radius**2)
-                        planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
-                        list_of_planets.remove(planet2)
+                    if collision_type == 'merge':
+                        #Merge them
+                        if planet.mass > planet2.mass:
+                            planet.mass += planet2.mass
+                            planet_area = math.pi * (planet.radius**2)
+                            planet2_area = math.pi * (planet2.radius**2)
+                            planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
+                            list_of_planets.remove(planet2)
+                    if collision_type == 'remove':
                         list_of_planets.remove(planet)
-                        continue
+                        list_of_planets.remove(planet2)
+
 
     #Draw planets
     for planet in list_of_planets:
         pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
 
     #Draw FPS
-    screen.blit(Text, (10,10))
+    screen.blit(fps_text, (10,10))
+
+    #Draw collision text
+    screen.blit(collision_text, (10,30))
 
     #Update screen
     pygame.display.flip()
@@ -156,6 +178,9 @@ while play:
                 ipbm.radius = 1
                 p6.radius -= 1
                 list_of_planets.append(ipbm)
+            #Go to next collision type    
+            if event.key == pygame.K_F1:
+                collision_type = get_next_collision_type(collision_type)
 
     #Check for keys
     key = pygame.key.get_pressed()
