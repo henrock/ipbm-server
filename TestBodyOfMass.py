@@ -28,6 +28,7 @@ p5 = BodyOfMass.BodyOfMass()
 p6 = BodyOfMass.BodyOfMass()
 
 list_of_planets = [p1, p2, p3, p4, p5, p6]
+print(list_of_planets)
 
 #Assign a starting coordinates
 p1.position['x'] = 400
@@ -145,8 +146,16 @@ while play:
                             planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
                             list_of_planets.remove(planet2)
                     if collision_type == 'remove':
-                        list_of_planets.remove(planet)
-                        list_of_planets.remove(planet2)
+                        print(planet)
+                        print(planet2)
+                        if planet in list_of_planets:
+                            list_of_planets.remove(planet)
+                        if planet2 in list_of_planets:
+                            list_of_planets.remove(planet2)
+                    if collision_type == 'explode':
+                        pass
+                    if collision_type == 'bounce':
+                        pass
 
 
     #Draw planets
