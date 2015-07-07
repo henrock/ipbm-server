@@ -3,9 +3,9 @@ import BodyOfMass
 
 class MissileLauncher:
 
-	def __init__(self):
-    	self.launchingVelocity = {'x': 10, 'y': 10}
-    	self.parentBody = None
+    def __init__(self):
+        self.launchingVelocity = {'x': 10, 'y': 10}
+        self.parentBody = None
 
     def launchMissile(self):
         missile = BodyOfMass.BodyOfMass()

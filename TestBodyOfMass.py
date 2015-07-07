@@ -10,7 +10,7 @@ import sys
 import math
 
 def get_next_collision_type(current_collision_type):
-    collision_types = ('remove','merge','explode')
+    collision_types = ('remove','merge','explode','bounce')
     current_index = collision_types.index(current_collision_type)
     if len(collision_types) > current_index + 1:
         #Return the next item
@@ -28,7 +28,6 @@ p5 = BodyOfMass.BodyOfMass()
 p6 = BodyOfMass.BodyOfMass()
 
 list_of_planets = [p1, p2, p3, p4, p5, p6]
-print(list_of_planets)
 
 #Assign a starting coordinates
 p1.position['x'] = 400
@@ -42,7 +41,10 @@ p4.position['y'] = 100
 p5.position['x'] = 600
 p5.position['y'] = 200
 p6.position['x'] = 150
-p6.position['y'] = 360
+p6.position['y'] = 360 
+
+p1.velocity['y'] = 10
+p2.velocity['y'] = -10
 
 
 #Assign mass
@@ -70,6 +72,13 @@ start_time = time.time()
 last_time = time.time()
 current_time = time.time()
 elapsed_time = 0
+time_factor = 1
+rendering_timer = 0.0
+calculation_timer = 0.0
+time_resolution = 0.01
+calculation_fps_limit = 100
+rendering_fps_limit = 30
+
 #Frame counting variables
 frame_count = 0
 frame_sum = 0
@@ -83,7 +92,7 @@ pygame.display.flip()
 
 #Create font for displaying text
 pygame.font.init()
-Font = pygame.font.Font(None, 28)
+Font = pygame.font.Font(None, 20)
 
 #Set default collision type
 collision_type = 'remove'
@@ -104,33 +113,42 @@ while play:
     delta_time = current_time - last_time
     last_time = current_time
     elapsed_time = current_time - start_time
+    rendering_timer += delta_time
+    calculation_timer += delta_time
 
-    #Upate frame rate
-    frame_count += 1;
-    frame_sum += delta_time
-    if frame_sum > 1:
-        frame_rate = frame_count / frame_sum
-        frame_sum = 0
-        frame_count = 0
-    fps_text = Font.render("FPS: " + str(int(frame_rate)), True, (255,255,255))
+    if calculation_timer > 1 / calculation_fps_limit / time_factor:
+        calculation_timer = 0.0
+        #Upate frame rate
+        frame_count += 1;
+        frame_sum += delta_time
+        if frame_sum > 1:
+            frame_rate = frame_count / frame_sum
+            frame_sum = 0
+            frame_count = 0
+        fps_text = Font.render("CPS: " + str(int(frame_rate)), True, (255,255,255))
 
-    #Update collision type text
-    collision_text = Font.render("[F1] Collision type: " + collision_type, True, (255,255,255))
+        #Update collision type text
+        collision_text = Font.render("[F1] Collision type: " + collision_type, True, (255,255,255))
 
-    for planet in list_of_planets:
-        #Collision management
-        if planet.moving == True:
-            #Calculate position
-            planet.position['x'] += planet.velocity['x']*delta_time
-            planet.position['y'] += planet.velocity['y']*delta_time
+        #Update time factor text
+        time_factor_text = Font.render("[+/-] Time factor: " + str(time_factor), True, (255,255,255))
 
-            #Calculate accelerations
-            planet.acceleration = planet.calculateAcceleration(list_of_planets)
+        for planet in list_of_planets:
+            #Collision management
+            if planet.moving == True:
+                #Calculate position
+                planet.position['x'] += planet.velocity['x']*time_resolution
+                planet.position['y'] += planet.velocity['y']*time_resolution
 
-            #Calculate velocity
-            planet.velocity['x'] += planet.acceleration['x']*delta_time
-            planet.velocity['y'] += planet.acceleration['y']*delta_time
+                #Calculate accelerations
+                planet.acceleration = planet.calculateAcceleration(list_of_planets)
 
+                #Calculate velocity
+                planet.velocity['x'] += planet.acceleration['x']*time_resolution
+                planet.velocity['y'] += planet.acceleration['y']*time_resolution
+
+
+        for planet in list_of_planets:
             #Check for collisions
             for planet2 in list_of_planets:
                 if planet == planet2:
@@ -146,8 +164,6 @@ while play:
                             planet.radius = int(math.sqrt(((planet_area + planet2_area) / math.pi)))
                             list_of_planets.remove(planet2)
                     if collision_type == 'remove':
-                        print(planet)
-                        print(planet2)
                         if planet in list_of_planets:
                             list_of_planets.remove(planet)
                         if planet2 in list_of_planets:
@@ -155,21 +171,28 @@ while play:
                     if collision_type == 'explode':
                         pass
                     if collision_type == 'bounce':
-                        pass
+                        #sys.exit()
+                        planet.velocity['x'] = (planet.velocity['x'] * planet.mass + planet2.velocity['x'] * planet2.mass) / planet.mass
+                        planet.velocity['y'] = (planet.velocity['y'] * planet.mass + planet2.velocity['y'] * planet2.mass) / planet.mass
 
 
-    #Draw planets
-    for planet in list_of_planets:
-        pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
+    if rendering_timer > 1 / rendering_fps_limit:
+        #Draw planets
+        for planet in list_of_planets:
+            pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
 
-    #Draw FPS
-    screen.blit(fps_text, (10,10))
+        #Draw FPS
+        screen.blit(fps_text, (10,10))
 
-    #Draw collision text
-    screen.blit(collision_text, (10,30))
+        #Draw collision text
+        screen.blit(collision_text, (10,30))
 
-    #Update screen
-    pygame.display.flip()
+        #Draw time factor text
+        screen.blit(time_factor_text, (10,50))
+
+        #Update screen
+        pygame.display.flip()
+        rendering_timer = 0.0
 
     #Check for events
     for event in pygame.event.get():
@@ -190,6 +213,12 @@ while play:
             #Go to next collision type    
             if event.key == pygame.K_F1:
                 collision_type = get_next_collision_type(collision_type)
+            #Raise the time factor
+            if event.key == pygame.K_KP_PLUS:
+                time_factor += 1
+            #Lower the time factor
+            if event.key == pygame.K_KP_MINUS:
+                time_factor -= 1
 
     #Check for keys
     key = pygame.key.get_pressed()
