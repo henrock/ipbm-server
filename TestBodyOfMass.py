@@ -76,7 +76,7 @@ start_time = time.time()
 last_time = time.time()
 current_time = time.time()
 elapsed_time = 0
-time_factor = 2
+time_factor = 1
 rendering_timer = 0.0
 calculation_timer = 0.0
 time_resolution = 0.01
@@ -216,11 +216,10 @@ while play:
                 collision_type = get_next_collision_type(collision_type)
             #Raise the time factor
             if event.key == pygame.K_p:
-                time_factor += 1
+                time_factor = time_factor * 2
             #Lower the time factor
             if event.key == pygame.K_m:
-                if time_factor > 1:
-                    time_factor -= 1
+                time_factor = time_factor / 2
 
     #Check for keys
     key = pygame.key.get_pressed()
