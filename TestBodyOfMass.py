@@ -45,7 +45,7 @@ p4.position['y'] = 100
 p5.position['x'] = 600
 p5.position['y'] = 200
 p6.position['x'] = 150
-p6.position['y'] = 360 
+p6.position['y'] = 360
 
 p1.velocity['y'] = 10
 p2.velocity['y'] = -10
@@ -76,7 +76,7 @@ start_time = time.time()
 last_time = time.time()
 current_time = time.time()
 elapsed_time = 0
-time_factor = 1
+time_factor = 2
 rendering_timer = 0.0
 calculation_timer = 0.0
 time_resolution = 0.01
@@ -135,7 +135,7 @@ while play:
         collision_text = Font.render("[F1] Collision type: " + collision_type, True, (255,255,255))
 
         #Update time factor text
-        time_factor_text = Font.render("[+/-] Time factor: " + str(time_factor), True, (255,255,255))
+        time_factor_text = Font.render("[p/m] Time factor: " + str(time_factor), True, (255,255,255))
 
         for planet in list_of_planets:
             #Collision management
@@ -208,18 +208,19 @@ while play:
             if p6 in list_of_planets:
                 ipbm = ipbm_launcher.launchMissile(mouse_position)
                 list_of_planets.append(ipbm)
-            
+
 
         if event.type == pygame.KEYDOWN:
             #Go to next collision type
             if event.key == pygame.K_F1:
                 collision_type = get_next_collision_type(collision_type)
             #Raise the time factor
-            if event.key == pygame.K_KP_PLUS:
+            if event.key == pygame.K_p:
                 time_factor += 1
             #Lower the time factor
-            if event.key == pygame.K_KP_MINUS:
-                time_factor -= 1
+            if event.key == pygame.K_m:
+                if time_factor > 1:
+                    time_factor -= 1
 
     #Check for keys
     key = pygame.key.get_pressed()
