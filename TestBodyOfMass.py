@@ -206,11 +206,13 @@ while play:
                 ipbm.velocity['x'] = p6.velocity['x'] + p6.mass/200
                 ipbm.velocity['y'] = p6.velocity['y'] - p6.mass/200
                 ipbm.mass = 10
-                p6.mass -= 10
+                if p6.mass > 100:
+                    p6.mass -= 10
                 ipbm.radius = 1
-                p6.radius -= 1
+                if p6.radius > 10:
+                    p6.radius -= 1
                 list_of_planets.append(ipbm)
-            #Go to next collision type    
+            #Go to next collision type
             if event.key == pygame.K_F1:
                 collision_type = get_next_collision_type(collision_type)
             #Raise the time factor
