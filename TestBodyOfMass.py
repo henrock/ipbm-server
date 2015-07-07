@@ -29,6 +29,10 @@ p6 = BodyOfMass.BodyOfMass()
 
 list_of_planets = [p1, p2, p3, p4, p5, p6]
 
+# Creating a missile launcher
+ipbm_launcher = MissileLauncher.MissileLauncher()
+ipbm_launcher.parentBody = p6
+
 #Assign a starting coordinates
 p1.position['x'] = 400
 p1.position['y'] = 200
@@ -198,20 +202,15 @@ while play:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             play = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE and p6 in list_of_planets:
-                ipbm = BodyOfMass.BodyOfMass()
-                ipbm.position['x'] = p6.position['x'] + p6.radius
-                ipbm.position['y'] = p6.position['y'] - p6.radius
-                ipbm.velocity['x'] = p6.velocity['x'] + p6.mass/200
-                ipbm.velocity['y'] = p6.velocity['y'] - p6.mass/200
-                ipbm.mass = 10
-                if p6.mass > 100:
-                    p6.mass -= 10
-                ipbm.radius = 1
-                if p6.radius > 10:
-                    p6.radius -= 1
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_position = pygame.mouse.get_pos()
+            if p6 in list_of_planets:
+                ipbm = ipbm_launcher.launchMissile(mouse_position)
                 list_of_planets.append(ipbm)
+            
+
+        if event.type == pygame.KEYDOWN:
             #Go to next collision type
             if event.key == pygame.K_F1:
                 collision_type = get_next_collision_type(collision_type)
