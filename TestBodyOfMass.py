@@ -19,6 +19,7 @@ def get_next_collision_type(current_collision_type):
         #Return the first one
         return collision_types[0]
 
+
 #Creating a few planets
 p1 = BodyOfMass.BodyOfMass()
 p2 = BodyOfMass.BodyOfMass()
@@ -184,6 +185,7 @@ while play:
         #Draw planets
         for planet in list_of_planets:
             pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
+            pygame.draw.line(screen, (255,255,255), (int(planet.position['x']), int(planet.position['y'])), (int(planet.velocity['x']) + int(planet.position['x']), int(planet.velocity['y']) + int(planet.position['y'])), 2)
 
         #Draw FPS
         screen.blit(fps_text, (10,10))
