@@ -8,6 +8,7 @@ import time
 import os
 import sys
 import math
+import random
 
 def get_next_collision_type(current_collision_type):
     collision_types = ('remove','merge','explode','bounce')
@@ -21,53 +22,67 @@ def get_next_collision_type(current_collision_type):
 
 
 #Creating a few planets
-p1 = BodyOfMass.BodyOfMass()
-p2 = BodyOfMass.BodyOfMass()
-p3 = BodyOfMass.BodyOfMass()
-p4 = BodyOfMass.BodyOfMass()
-p5 = BodyOfMass.BodyOfMass()
-p6 = BodyOfMass.BodyOfMass()
+#p1 = BodyOfMass.BodyOfMass()
+#p2 = BodyOfMass.BodyOfMass()
+#p3 = BodyOfMass.BodyOfMass()
+#p4 = BodyOfMass.BodyOfMass()
+#p5 = BodyOfMass.BodyOfMass()
+#p6 = BodyOfMass.BodyOfMass()
 
-list_of_planets = [p1, p2, p3, p4, p5, p6]
-
-# Creating a missile launcher
-ipbm_launcher = MissileLauncher.MissileLauncher()
-ipbm_launcher.parentBody = p6
+list_of_planets = []
 
 #Assign a starting coordinates
-p1.position['x'] = 400
-p1.position['y'] = 200
-p2.position['x'] = 300
-p2.position['y'] = 300
-p3.position['x'] = 200
-p3.position['y'] = 200
-p4.position['x'] = 100
-p4.position['y'] = 100
-p5.position['x'] = 600
-p5.position['y'] = 200
-p6.position['x'] = 150
-p6.position['y'] = 360
+#p1.position['x'] = 400
+#p1.position['y'] = 200
+#p2.position['x'] = 300
+#p2.position['y'] = 300
+#p3.position['x'] = 200
+#p3.position['y'] = 200
+#p4.position['x'] = 100
+#p4.position['y'] = 100
+#p5.position['x'] = 600
+#p5.position['y'] = 200
+#p6.position['x'] = 150
+#p6.position['y'] = 360
 
-p1.velocity['y'] = 10
-p2.velocity['y'] = -10
+#p1.velocity['y'] = 10
+#p2.velocity['y'] = -10
 
 
 #Assign mass
-p1.mass = 1000
-p2.mass = 1500
-p3.mass = 2000
-p4.mass = 3000
-p5.mass = 4000
-p6.mass = 5000
+#p1.mass = 1000
+#p2.mass = 1500
+#p3.mass = 2000
+#p4.mass = 3000
+#p5.mass = 4000
+#p6.mass = 5000
 
 
 #Assign radius
-p1.radius = 10
-p2.radius = 15
-p3.radius = 20
-p4.radius = 30
-p5.radius = 40
-p6.radius = 50
+#p1.radius = 10
+#p2.radius = 15
+#p3.radius = 20
+#p4.radius = 30
+#p5.radius = 40
+#p6.radius = 50
+
+#xrand = random.randint(1,10)
+#print(xrand)
+# Generate a number of planets with random properties
+num_planets = 10
+for p in range(0, num_planets):
+	p = BodyOfMass.BodyOfMass()
+	p.position['x'] = random.randint(0, 640)
+	p.position['y'] = random.randint(0, 480)
+	p.velocity['x'] = random.randint(0, 20)
+	p.velocity['y'] = random.randint(0, 20)
+	p.mass = random.randint(1000, 100000)
+	p.radius = random.randint(10, 100)
+	list_of_planets.append(p)
+
+# Creating a missile launcher
+ipbm_launcher = MissileLauncher.MissileLauncher()
+ipbm_launcher.parentBody = list_of_planets[0]
 
 #Control variable
 play = True
@@ -207,7 +222,7 @@ while play:
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouse_position = pygame.mouse.get_pos()
-            if p6 in list_of_planets:
+            if list_of_planets[0] in list_of_planets:
                 ipbm = ipbm_launcher.launchMissile(mouse_position)
                 list_of_planets.append(ipbm)
 
