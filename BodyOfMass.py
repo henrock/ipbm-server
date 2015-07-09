@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import math
 
 class BodyOfMass:
     def __init__(self):
@@ -21,31 +22,37 @@ class BodyOfMass:
         for body in list_of_bodies:
             if body == self:
                 continue
-            force_x += self.calculateAccelerationComponent(body, 'x')
-            force_y += self.calculateAccelerationComponent(body, 'y')
-        acceleration_x = force_x / self.mass
-        acceleration_y = force_y / self.mass
-        return {'x': acceleration_x, 'y': acceleration_y}
+            vector_x = body.position['x'] - self.position['x']
+            vector_y = body.position['y'] - self.position['y']
+            #print(vector_x, vector_y)
+            vector_length = math.sqrt(vector_x**2 + vector_y**2)
+            #print(vector_length)
+            force = self.mass * body.mass / vector_length
+            pointing_vector = self.pointingAt(body)
+            #print(pointing_vector)
+            force_x += pointing_vector['x'] * force# + self.position['x']
+            force_y += pointing_vector['y'] * force# + self.position['y']
+        return {'x': force_x, 'y': force_y}
 
     # helpfunction for caclulateAcceleration for one component, returns a force
-    def calculateAccelerationComponent(self, body, component):
-        distance_x = body.position['x'] - self.position['x']
-        distance_y = body.position['y'] - self.position['y']
-        distance = distance_x**2 + distance_y**2
-        if distance == 0:
-            return 0
-        if component == 'x':
-            if distance_x < 0:
-                e = -1
-            else:
-                e = 1
-        else:
-            if distance_y < 0:
-                e = -1
-            else:
-                e = 1
-        force = self.mass * body.mass / distance # distance is already squared)
-        return e * force
+    # def calculateAccelerationComponent(self, body, component):
+    #     distance_x = body.position['x'] - self.position['x']
+    #     distance_y = body.position['y'] - self.position['y']
+    #     distance = distance_x**2 + distance_y**2
+    #     if distance == 0:
+    #         return 0
+    #     if component == 'x':
+    #         if distance_x < 0:
+    #             e = -1
+    #         else:
+    #             e = 1
+    #     else:
+    #         if distance_y < 0:
+    #             e = -1
+    #         else:
+    #             e = 1
+    #     force = self.mass * body.mass / distance # distance is already squared)
+    #     return e * force
 
     # returns a dictionary with x and y values
     def calculateVelocity(self):
@@ -54,3 +61,13 @@ class BodyOfMass:
     # returns a dictionary with x and y values
     def calculatePosition(self):
         pass
+
+    # helpfunctions
+    # returns a vector pointing from self to body
+    def pointingAt(self, body):
+        vector_x = body.position['x'] - self.position['x']
+        vector_y = body.position['y'] - self.position['y']
+        vector_length = math.sqrt(vector_x**2 + vector_y**2)
+        normal_x = vector_x / vector_length
+        normal_y = vector_y / vector_length
+        return {'x': normal_x, 'y': normal_y}

@@ -33,7 +33,7 @@ list_of_planets = []
 
 #Assign a starting coordinates
 #p1.position['x'] = 400
-#p1.position['y'] = 200
+#p1.position['y'] = 250
 #p2.position['x'] = 300
 #p2.position['y'] = 300
 #p3.position['x'] = 200
@@ -45,39 +45,37 @@ list_of_planets = []
 #p6.position['x'] = 150
 #p6.position['y'] = 360
 
-#p1.velocity['y'] = 10
-#p2.velocity['y'] = -10
+#p1.velocity['x'] = -10
+#p2.velocity['x'] = 10
 
 
 #Assign mass
-#p1.mass = 1000
-#p2.mass = 1500
-#p3.mass = 2000
-#p4.mass = 3000
-#p5.mass = 4000
-#p6.mass = 5000
+#p1.mass = 10
+#p2.mass = 10
+#p3.mass = 20
+#p4.mass = 30
+#p5.mass = 40
+#p6.mass = 50
 
 
 #Assign radius
 #p1.radius = 10
-#p2.radius = 15
+#p2.radius = 10
 #p3.radius = 20
 #p4.radius = 30
 #p5.radius = 40
 #p6.radius = 50
 
-#xrand = random.randint(1,10)
-#print(xrand)
 # Generate a number of planets with random properties
 num_planets = 10
 for p in range(0, num_planets):
 	p = BodyOfMass.BodyOfMass()
 	p.position['x'] = random.randint(0, 640)
 	p.position['y'] = random.randint(0, 480)
-	p.velocity['x'] = random.randint(0, 20)
-	p.velocity['y'] = random.randint(0, 20)
-	p.mass = random.randint(1000, 100000)
-	p.radius = random.randint(10, 100)
+	p.velocity['x'] = random.randint(0, 10)
+	p.velocity['y'] = random.randint(0, 10)
+	p.mass = random.randint(10, 20)
+	p.radius = int(p.mass / 2)
 	list_of_planets.append(p)
 
 # Creating a missile launcher
@@ -201,6 +199,7 @@ while play:
         for planet in list_of_planets:
             pygame.draw.circle(screen,(255,0,255),(int(planet.position['x']), int(planet.position['y'])), planet.radius, 0)
             pygame.draw.line(screen, (255,255,255), (int(planet.position['x']), int(planet.position['y'])), (int(planet.velocity['x']) + int(planet.position['x']), int(planet.velocity['y']) + int(planet.position['y'])), 2)
+            pygame.draw.line(screen, (0,0,255), (int(planet.position['x']), int(planet.position['y'])), (int(planet.acceleration['x']) + int(planet.position['x']), int(planet.acceleration['y']) + int(planet.position['y'])), 2)
 
         #Draw FPS
         screen.blit(fps_text, (10,10))
@@ -275,8 +274,3 @@ while play:
 
 #Finally close the window
 pygame.quit()
-
-
-
-
-
