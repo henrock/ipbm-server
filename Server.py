@@ -28,54 +28,128 @@ def init_connection():
     server_socket.listen(10)
 
     #Add server socket to list of connections
-    list_of_connections.append(server_socket)
+    #list_of_connections.append(server_socket)
 
     return server_socket
 
+def handle_incoming_connections(server_socket, list_of_connections):
+    connections = []
+    connections.append(server_socket)
+    try:
+        ready_to_read, ready_to_write, in_error = select.select(connections, [], [], 0)
+    except select.error:
+        print("Select failed for: handle_incoming_connections")
+    # a new connection request received
+    for sock in ready_to_read:
+        #Accept new connection
+        sockfd, addr = server_socket.accept()
+        list_of_connections.append(sockfd)
+        print("Client (%s, %s) connected" % addr)
+        broadcast(list_of_connections, "[%s:%s] entered our chatting room\n" % addr)
+
 def get_readable_sockets(connection_list):
-    #Check connections that are ready to receive data
-    ready_to_read, ready_to_write, in_error = select.select(connection_list, connection_list, connection_list, 0)
+    ready_to_read = []
+    #Check that connection_list actually has connections in it
+    if len(connection_list) > 0:
+        #Check that the connection does not have a bad file descriptor
+        for con in connection_list:
+            if con.fileno() == -1:
+                connection_list.remove(con)
+                continue
+            #Check connections that are ready to receive data
+            #print(connection_list[0])
+            ready_to_read, ready_to_write, in_error = select.select(connection_list, [], [], 0)
+
     return ready_to_read
 
-def read_incoming_data(server_socket, socket_list, list_of_connections, buffer_size):
+def get_writable_sockets(connection_list):
+    ready_to_write = []
+    #Check that connection_list actually has connections in it
+    if len(connection_list) > 0:
+        #Check that the connection does not have a bad file descriptor
+        for con in connection_list:
+            if con.fileno() == -1:
+                connection_list.remove(con)
+                continue
+        #Check connections that are ready to transmit data
+        ready_to_read, ready_to_write, in_error = select.select([], connection_list, [], 0)
+    return ready_to_write
+
+
+def read_incoming_data(socket_list, connection_list, buffer_size):
 
     for sock in socket_list:
-            # a new connection request received
-            if sock == server_socket:
-                sockfd, addr = server_socket.accept()
-                list_of_connections.append(sockfd)
-                print("Client (%s, %s) connected" % addr)
-                broadcast(sockfd, list_of_connections, "[%s:%s] entered our chatting room\n" % addr)
-
-            # a message from a client, not a new connection
+        # process data received from client,
+        try:
+            # receiving data from the socket.
+            #print("Received message")
+            data = sock.recv(recieve_buffer)
+            if data:
+                # there is something in the socket
+                decoded_message = data.decode("utf-8")
+                print("Message was: " + decoded_message)
+                broadcast(connection_list, '[' + str(sock.getpeername()) + '] ' + decoded_message)
+                #print("Broadcast done.")
             else:
-                # process data received from client,
-                try:
-                    # receiving data from the socket.
-                    #print("Received message")
-                    data = sock.recv(recieve_buffer)
-                    if data:
-                        # there is something in the socket
-                        decoded_message = data.decode("utf-8")
-                        print("Message was:" + decoded_message)
-                        broadcast(sock, list_of_connections, '[' + str(sock.getpeername()) + '] ' + decoded_message)
-                        #print("Broadcast done.")
-                    else:
-                        #print("Message was empty, ie connection broken")
-                        # remove the socket that's broken
-                        if sock in list_of_connections:
-                            list_of_connections.remove(sock)
+                #print("Message was empty, ie connection broken")
+                # remove the socket that's broken
+                if sock in connection_list:
+                    connection_list.remove(sock)
 
-                        # at this stage, no data means probably the connection has been broken
-                        broadcast(sock, list_of_connections, "Client (%s, %s) is offline\n" % sock.getpeername())
-                        print("Disconnected client (%s:%s)" % sock.getpeername())
+                # at this stage, no data means probably the connection has been broken
+                broadcast(connection_list, "Client (%s, %s) is offline\n" % sock.getpeername())
+                print("Disconnected client (%s:%s)" % sock.getpeername())
 
-                # exception
-                except:
-                    #print("Exception: Could not receive message.")
-                    broadcast(sock, list_of_connections, "Client (%s, %s) is offline\n" % sock.getpeername())
-                    print("Client (%s, %s) is offline" % sock.getpeername())
-                    continue
+        # exception
+        except:
+            #broadcast(list_of_connections, "Client (%s, %s) is offline\n" % sock.getpeername())
+            print("Exception: could not reveive message")
+            socket_list.remove(sock)
+            continue
+
+def broadcast (connection_list, message):
+    for socket in connection_list:
+        #Sen the message to clients only
+        if socket != server_socket:
+            try :
+                socket.send(bytes(message, "UTF-8"))
+            except :
+                print("Failed to send message to Client (%s, %s)" % socket.getpeername())
+                # broken socket connection
+                socket.close()
+                # broken socket, remove it
+                if socket in connection_list:
+                    connection_list.remove(socket)
+
+def broadcast_planet_positions(planet_list, list_of_recipients):
+    #Prepare empty message
+    message = "<BeginPlanets>"
+
+    #Go through the list of connections
+    for planet in planet_list:
+        #Generate message
+        message += "<Planet position: " + str(int(planet.position["x"])) + ","+ str(int(planet.position["y"])) + ">"
+        message += "<Planet radius: " + str(int(planet.radius)) + ">"
+
+    #End message
+    message += "<EndPlanets>"
+    #print(message)
+
+    #Send message
+    for recipient in list_of_recipients:
+        #Do not send to self
+        if socket != server_socket:         #Server_socket is defined in the scope of the module that calls this function.
+                                            #if this stops working, just add server_socket as a parameter to the function call
+            try:
+                recipient.send(bytes(message, "UTF-8"))
+            except:
+                print("Failed to send message to Client (%s, %s)" % recipient.getpeername())
+                # broken socket connection
+                recipient.close()
+                # broken socket, remove it
+                if recipient in list_of_recipients:
+                    list_of_recipients.remove(recipient)
+
 
 def generate_planets(num_planets):
     #Create an empty list
@@ -103,21 +177,6 @@ def generate_planets(num_planets):
 
     #return the list
     return planet_list
-
-def broadcast (sock, list_of_connections, message):
-    for socket in list_of_connections:
-        # send the message only to peer
-        if socket != server_socket: # and socket != sock :
-            try :
-                #print("Trying to send message: " + message)
-                socket.send(bytes(message, "UTF-8"))
-            except :
-                print("Failed to send message")
-                # broken socket connection
-                socket.close()
-                # broken socket, remove it
-                if socket in list_of_connections:
-                    list_of_connections.remove(socket)
 
 def update_planet_positions(planet_list):
     for planet in planet_list:
@@ -166,10 +225,6 @@ def check_planet_collisions(planet_list):
 #                    planet.velocity['x'] = (planet.velocity['x'] * planet.mass + planet2.velocity['x'] * planet2.mass) / planet.mass
 #                    planet.velocity['y'] = (planet.velocity['y'] * planet.mass + planet2.velocity['y'] * planet2.mass) / planet.mass
 
-def broadcast_planet_positions(planet_list):
-    #TODO: Send information
-    pass
-
 if __name__ == "__main__":
     #Start server
     print("Server starting")
@@ -207,10 +262,11 @@ if __name__ == "__main__":
     run_main_loop = True
     while run_main_loop:
         #Check connections for incoming data
-        incomming_data_sockets = get_readable_sockets(list_of_connections)
+        handle_incoming_connections(server_socket, list_of_connections)
+        incoming_data_sockets = get_readable_sockets(list_of_connections)
 
         #Read incoming data
-        read_incoming_data(server_socket, incomming_data_sockets, list_of_connections, recieve_buffer)
+        read_incoming_data(incoming_data_sockets, list_of_connections, recieve_buffer)
 
         #TODO: Check user input
 
@@ -242,7 +298,7 @@ if __name__ == "__main__":
         #Check if its time to send planet positions to clients
         if rendering_timer > 1 / rendering_tick_limit:
             #Send planet positions to clients
-            broadcast_planet_positions(list_of_planets)
+            broadcast_planet_positions(list_of_planets, get_writable_sockets(list_of_connections))
 
 
     #Close all connections
