@@ -8,6 +8,7 @@ import BodyOfMass
 #Network
 import socket
 import select
+import json
 
 #Other
 import time
@@ -121,19 +122,49 @@ def broadcast (connection_list, message):
                 if socket in connection_list:
                     connection_list.remove(socket)
 
-def broadcast_planet_positions(planet_list, list_of_recipients):
+def broadcast_planet_positions_ipbm_encoding(planet_list, list_of_recipients):
     #Prepare empty message
     message = "<BeginPlanets>"
 
     #Go through the list of connections
     for planet in planet_list:
         #Generate message
-        message += "<Planet position: " + str(int(planet.position["x"])) + ","+ str(int(planet.position["y"])) + ">"
-        message += "<Planet radius: " + str(int(planet.radius)) + ">"
+        message += str(planet)
+        #message += "<Planet position: " + str(int(planet.position["x"])) + ","+ str(int(planet.position["y"])) + ">"
+        #message += "<Planet radius: " + str(int(planet.radius)) + ">"
 
     #End message
     message += "<EndPlanets>"
     #print(message)
+
+    #Send message
+    for recipient in list_of_recipients:
+        #Do not send to self
+        if socket != server_socket:         #Server_socket is defined in the scope of the module that calls this function.
+                                            #if this stops working, just add server_socket as a parameter to the function call
+            try:
+                recipient.send(bytes(message, "UTF-8"))
+            except:
+                print("Failed to send message to Client (%s, %s)" % recipient.getpeername())
+                # broken socket connection
+                recipient.close()
+                # broken socket, remove it
+                if recipient in list_of_recipients:
+                    list_of_recipients.remove(recipient)
+
+def broadcast_planet_positions_json_encoding(planet_list, list_of_recipients):
+    #Prepare message prefix
+    message = "<BeginPlanets>"
+    information_list = []
+    for planet in planet_list:
+        information_list.append((planet.position, planet.radius))
+
+    #Add message data
+    message += json.dumps(information_list)
+
+    #End with message suffix
+    message += "<EndPlanets>"
+
 
     #Send message
     for recipient in list_of_recipients:
@@ -230,16 +261,16 @@ if __name__ == "__main__":
     print("Server starting")
 
     #Create a list of planets
-    list_of_planets = generate_planets(10)
+    list_of_planets         = generate_planets(10)
 
     #Lists of connections
-    list_of_connections = []
+    list_of_connections     = []
 
     #Send buffer size
-    recieve_buffer      = 4096
+    recieve_buffer          = 4096
 
     #Initialize connection
-    server_socket = init_connection()
+    server_socket           = init_connection()
 
     #Time variables used to calculate velocity and position
     start_time              = time.time()
@@ -251,7 +282,7 @@ if __name__ == "__main__":
     calculation_timer       = 0.0
     time_resolution         = 0.01
     calculation_tick_limit  = 100           #Physics update limit
-    rendering_tick_limit    = 30            #Transmit planet positions to clients limit
+    rendering_tick_limit    = 3             #Transmit planet positions to clients limit
 
     #Tick counting variables
     tick_count  = 0
@@ -298,7 +329,8 @@ if __name__ == "__main__":
         #Check if its time to send planet positions to clients
         if rendering_timer > 1 / rendering_tick_limit:
             #Send planet positions to clients
-            broadcast_planet_positions(list_of_planets, get_writable_sockets(list_of_connections))
+            #broadcast_planet_positions_ipbm_encoding(list_of_planets, get_writable_sockets(list_of_connections))
+            broadcast_planet_positions_json_encoding(list_of_planets, get_writable_sockets(list_of_connections))
 
 
     #Close all connections
